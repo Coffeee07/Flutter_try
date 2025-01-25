@@ -1,5 +1,8 @@
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:permission_handler/permission_handler.dart';
+
 
 void main() {
   runApp(const PodScanApp());
@@ -88,6 +91,35 @@ class _SplashScreenState extends State<SplashScreen> {
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
+  Future<void> _takePhoto(BuildContext context) async {
+    final ImagePicker picker = ImagePicker();
+    try {
+      final XFile? photo = await picker.pickImage(source: ImageSource.camera);
+
+      if (photo != null) {
+        // Do something with the image (e.g., display or upload)
+        print("Photo Path: ${photo.path}");
+      } else {
+        print("No photo taken.");
+      }
+    } catch (e) {
+      // Handle errors
+      print("Error: $e");
+    }
+  }
+
+  // Add the _checkCameraPermission method inside HomeScreen
+  Future<void> _checkCameraPermission(BuildContext context) async {
+  if (await Permission.camera.request().isGranted) {
+    print("Camera permission granted");
+  } else {
+    print("Camera permission denied");
+    if (await Permission.camera.isPermanentlyDenied) {
+      await openAppSettings(); // Open app settings if permanently denied
+    }
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,7 +127,7 @@ class HomeScreen extends StatelessWidget {
         // Set the background image
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/back.png'), // Update with your image path
+            image: AssetImage('assets/background.png'), // Update with your image path
             fit: BoxFit.cover, // This will make the image cover the entire screen
           ),
         ),
@@ -227,8 +259,15 @@ class HomeScreen extends StatelessWidget {
                         elevation: 8, // Retains the shadow
                         shadowColor: Colors.black.withOpacity(0.5), // Shadow color and opacity
                       ),
-                      onPressed: () {
-                        // Add functionality for "Take Photo"
+                     onPressed: () async {
+                        // Check camera permission
+                        await _checkCameraPermission(context);
+
+                        // If granted, open the camera
+                        if (await Permission.camera.isGranted) {
+                          print("Launching camera...");
+                          await _takePhoto(context); // Call _takePhoto method
+                        }
                       },
                       child: const Text(
                         'Take Photo',
