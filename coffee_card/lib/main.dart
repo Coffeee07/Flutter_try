@@ -3,6 +3,8 @@ import 'dart:async';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'analyze_page.dart';
+
 
 void main() {
   runApp(const PodScanApp());
@@ -100,9 +102,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
+      Navigator.push(
+        context,
+      MaterialPageRoute(
+        builder: (context) => AnalyzePage(image: File(pickedFile.path)),
+        ),
+      );
     }
   }
 
@@ -112,9 +117,12 @@ class _HomeScreenState extends State<HomeScreen> {
       final XFile? photo = await picker.pickImage(source: ImageSource.camera);
 
       if (photo != null) {
-        setState(() {
-          _selectedImage = File(photo.path);
-        });
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AnalyzePage(image: File(photo.path)),
+          ),
+        );
       }
     } catch (e) {
       print("Error: $e");
