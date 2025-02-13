@@ -146,89 +146,95 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/background.png'), // Set background image
-            fit: BoxFit.cover,
-          ),
-        ),
+        width: double.infinity,
+        height: double.infinity,
+        color: Color(0xFF832637),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo at the top
-            Image.asset(
-              'assets/PODScan.png', // Adjust the image based on your design
-              height: 100,
-            ),
-            const SizedBox(height: 10),
-
-            // PODSCAN Text with Custom Font & Colors
-            RichText(
-              text: const TextSpan(
-                style: TextStyle(
-                  fontFamily: 'CinzelDecorative',
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TextSpan(
-                    text: 'POD',
-                    style: TextStyle(color: Color(0xFF7ED957)), // Green color
+                  Image.asset(
+                    'assets/PODScan.png',
+                    height: 100,
                   ),
-                  TextSpan(
-                    text: 'SCAN',
-                    style: TextStyle(color: Color(0xFFFFDE59)), // Yellow color
+                  const SizedBox(height: 10),
+                  RichText(
+                    text: const TextSpan(
+                      style: TextStyle(
+                        fontFamily: 'CinzelDecorative',
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: 'POD',
+                          style: TextStyle(color: Color(0xFF7ED957)),
+                        ),
+                        TextSpan(
+                          text: 'SCAN',
+                          style: TextStyle(color: Color(0xFFFFDE59)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFF1E6BB),
+                            foregroundColor: Colors.black,
+                            minimumSize: const Size(220, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 5,
+                          ),
+                          onPressed: _checkCameraPermission,
+                          child: const Text(
+                            'Take Photo',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF628E6E),
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(220, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 5,
+                          ),
+                          onPressed: _pickImageFromGallery,
+                          child: const Text(
+                            'Upload Photo',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 40),
-
-            // Take Photo Button
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFF1E6BB), // Light yellow
-                foregroundColor: Colors.black,
-                minimumSize: const Size(250, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 5,
-              ),
-              onPressed: _checkCameraPermission,
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              color: Colors.black.withOpacity(0.3),
               child: const Text(
-                'Take Photo',
-                style: TextStyle(fontSize: 18),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Upload Photo Button
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF628E6E), // Green
-                foregroundColor: Colors.white,
-                minimumSize: const Size(250, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                'Developed by: Bicol University Students',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
                 ),
-                elevation: 5,
-              ),
-              onPressed: _pickImageFromGallery,
-              child: const Text(
-                'Upload Photo',
-                style: TextStyle(fontSize: 18),
-              ),
-            ),
-
-            // Footer Text (Optional)
-            const SizedBox(height: 50),
-            const Text(
-              'Developed by: Bicol University Students',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
               ),
             ),
           ],
