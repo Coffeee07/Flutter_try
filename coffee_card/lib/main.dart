@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'analyze_page.dart';
 
-
 void main() {
   runApp(const PodScanApp());
 }
@@ -45,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF832637),
+      backgroundColor: const Color(0xFF832637), // Set background color
       body: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -65,17 +64,22 @@ class _SplashScreenState extends State<SplashScreen> {
             RichText(
               text: const TextSpan(
                 style: TextStyle(
-                  color: Colors.white,
+                  fontFamily: 'CinzelDecorative', // Apply custom font
                   fontSize: 36,
-                  fontWeight: FontWeight.normal,
+                  fontWeight: FontWeight.bold,
                 ),
                 children: [
                   TextSpan(
                     text: 'POD',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Color(0xFF7ED957), // Green color for "POD"
+                    ),
                   ),
                   TextSpan(
-                    text: 'Scan',
+                    text: 'SCAN',
+                    style: TextStyle(
+                      color: Color(0xFFFFDE59), // Yellow color for "SCAN"
+                    ),
                   ),
                 ],
               ),
@@ -87,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-// Home Screen
+//Home Screen
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -99,13 +103,14 @@ class _HomeScreenState extends State<HomeScreen> {
   File? _selectedImage;
 
   Future<void> _pickImageFromGallery() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       Navigator.push(
         context,
-      MaterialPageRoute(
-        builder: (context) => AnalyzePage(image: File(pickedFile.path)),
+        MaterialPageRoute(
+          builder: (context) => AnalyzePage(image: File(pickedFile.path)),
         ),
       );
     }
@@ -143,72 +148,90 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/back.png'),
+            image: AssetImage('assets/background.png'), // Set background image
             fit: BoxFit.cover,
           ),
         ),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 175,
-                height: 175,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Logo at the top
+            Image.asset(
+              'assets/PODScan.png', // Adjust the image based on your design
+              height: 100,
+            ),
+            const SizedBox(height: 10),
+
+            // PODSCAN Text with Custom Font & Colors
+            RichText(
+              text: const TextSpan(
+                style: TextStyle(
+                  fontFamily: 'CinzelDecorative',
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
                 ),
-                child: _selectedImage != null
-                    ? ClipOval(
-                        child: Image.file(
-                          _selectedImage!,
-                          fit: BoxFit.cover,
-                          width: 175,
-                          height: 175,
-                        ),
-                      )
-                    : const Icon(
-                        Icons.camera_alt,
-                        size: 50,
-                        color: Colors.grey,
-                      ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF1E6BB),
-                  foregroundColor: Colors.black,
-                  minimumSize: const Size(200, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
+                children: [
+                  TextSpan(
+                    text: 'POD',
+                    style: TextStyle(color: Color(0xFF7ED957)), // Green color
                   ),
-                  elevation: 8,
-                ),
-                onPressed: _checkCameraPermission,
-                child: const Text(
-                  'Take Photo',
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF628E6E),
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(200, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
+                  TextSpan(
+                    text: 'SCAN',
+                    style: TextStyle(color: Color(0xFFFFDE59)), // Yellow color
                   ),
-                  elevation: 8,
-                ),
-                onPressed: _pickImageFromGallery,
-                child: const Text(
-                  'Upload Photo',
-                  style: TextStyle(fontSize: 20),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 40),
+
+            // Take Photo Button
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFF1E6BB), // Light yellow
+                foregroundColor: Colors.black,
+                minimumSize: const Size(250, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 5,
+              ),
+              onPressed: _checkCameraPermission,
+              child: const Text(
+                'Take Photo',
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Upload Photo Button
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF628E6E), // Green
+                foregroundColor: Colors.white,
+                minimumSize: const Size(250, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 5,
+              ),
+              onPressed: _pickImageFromGallery,
+              child: const Text(
+                'Upload Photo',
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+
+            // Footer Text (Optional)
+            const SizedBox(height: 50),
+            const Text(
+              'Developed by: Bicol University Students',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );
