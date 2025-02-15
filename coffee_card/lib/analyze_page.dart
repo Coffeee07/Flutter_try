@@ -1,4 +1,3 @@
-//analyze_page.dart
 import 'package:flutter/material.dart';
 import 'dart:io';
 
@@ -10,35 +9,55 @@ class AnalyzePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/back.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
+      backgroundColor: const Color(0xFF832637), // Match splash screen
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'PodScan',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+            Padding(
+              padding: const EdgeInsets.only(left: 15.0, top: 100.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(
+                    'assets/PODScan.png',
+                    height: 70,
+                  ),
+                  const SizedBox(width: 8),
+                  RichText(
+                    text: const TextSpan(
+                      style: TextStyle(
+                        fontFamily: 'CinzelDecorative',
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: 'POD',
+                          style: TextStyle(color: Color(0xFF7ED957)),
+                        ),
+                        TextSpan(
+                          text: 'SCAN',
+                          style: TextStyle(color: Color(0xFFFFDE59)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             Container(
               margin: const EdgeInsets.all(16),
-              height: 300,
+              height: 500,
               width: double.infinity,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.white, width: 2),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(5),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(5),
                 child: Image.file(
                   image,
                   fit: BoxFit.cover,
@@ -46,22 +65,24 @@ class AnalyzePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFF1E6BB),
-                foregroundColor: Colors.black,
-                minimumSize: const Size(200, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF628E6E),
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(200, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 5,
                 ),
-                elevation: 8,
-              ),
-              onPressed: () {
-                // Add analysis logic or functionality here
-              },
-              child: const Text(
-                'Analyze',
-                style: TextStyle(fontSize: 20),
+                onPressed: () {
+                  // Add analysis logic
+                },
+                child: const Text(
+                  'Analyze',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
             ),
           ],

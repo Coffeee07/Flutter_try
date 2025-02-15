@@ -1,0 +1,202 @@
+// output : 6 values (center_x, center_y, width, height, class_id, score)
+
+import 'package:flutter/material.dart';
+import 'dart:io';
+import 'dart:typed_data'; // Import this for Uint8List
+import 'package:tflite_flutter/tflite_flutter.dart';
+import 'package:image/image.dart' as img;
+import 'hascacao.dart';
+import 'nocacao.dart';
+import 'dart:convert';
+
+class AnalyzePage extends StatefulWidget {
+  final File image;
+  const AnalyzePage({Key? key, required this.image}) : super(key: key);
+
+  @override
+  State<AnalyzePage> createState() => _AnalyzePageState();
+}
+
+class _AnalyzePageState extends State<AnalyzePage> {
+  late Interpreter interpreter;
+  List<String> labels = [];
+  bool isLoading = false;
+  List<List<dynamic>>? detections;
+  Uint8List? processedImage; // Variable to hold the processed image
+
+  @override
+  void initState() {
+    super.initState();
+    _loadModelAndLabels();
+  }
+
+  Future<void> _loadModelAndLabels() async {
+    try {
+      interpreter =
+          await Interpreter.fromAsset('assets/test-cacao-yolov5s-model.tflite');
+      final labelsData =
+          await DefaultAssetBundle.of(context).loadString('assets/label.txt');
+      labels = LineSplitter.split(labelsData).toList();
+    } catch (e) {
+      debugPrint('Error loading model or labels: $e');
+    }
+  }
+
+  Future<List<List<List<List<double>>>>?> preprocessImage(
+      File imageFile) async {
+    final bytes = await imageFile.readAsBytes();
+    final image = img.decodeImage(bytes);
+    if (image == null) return null;
+    final resizedImage = img.copyResize(image, width: 640, height: 640);
+    return [
+      List.generate(
+          640,
+          (y) => List.generate(640, (x) {
+                final pixel = resizedImage.getPixel(x, y);
+                return [
+                  (img.getRed(pixel) / 255.0),
+                  (img.getGreen(pixel) / 255.0),
+                  (img.getBlue(pixel) / 255.0)
+                ];
+              }))
+    ];
+  }
+
+  Future<void> _analyzeImage() async {
+    setState(() {
+      isLoading = true; // Show loading indicator
+      processedImage = null; // Reset processed image
+    });
+
+    try {
+      final input = await preprocessImage(widget.image);
+      if (input == null) {
+        print('Failed to preprocess image');
+        return;
+      }
+
+      // Prepare the output buffer
+      var output = List.filled(1 * 100, 0)
+          .reshape([1, 100, 6]); // Adjust size based on your model output
+      interpreter.run(input, output);
+
+      // Filter detections based on confidence threshold
+      detections = output[0].where((d) => d[4] > 0.2).toList();
+      bool hasCacao = detections!.any((d) => labels[d[5].toInt()] == 'cacao');
+
+      // Create the image with bounding boxes
+      processedImage = _drawBoundingBoxes(widget.image, detections!);
+
+      // Navigate to the appropriate screen based on detection
+      if (hasCacao) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                CacaoDetectedScreen(imageWithBoxes: processedImage!),
+          ),
+        );
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => NoCacaoScreen(
+                image: Uint8List.fromList(widget.image.readAsBytesSync())),
+          ),
+        );
+      }
+      debugPrint('Screen navigation triggered');
+    } catch (e) {
+      debugPrint('Error during analysis: $e');
+    } finally {
+      setState(() {
+        isLoading = false; // Hide loading indicator
+      });
+    }
+  }
+
+  Uint8List _drawBoundingBoxes(File imageFile, List<List<dynamic>> detections) {
+    // Load the image
+    final bytes = imageFile.readAsBytesSync();
+    final image = img.decodeImage(bytes)!;
+
+    // Draw bounding boxes
+    for (var detection in detections) {
+      final xMin = (detection[0] * image.width).toInt();
+      final yMin = (detection[1] * image.height).toInt();
+      final xMax = (detection[2] * image.width).toInt();
+      final yMax = (detection[3] * image.height).toInt();
+      img.drawRect(image, xMin, yMin, xMax, yMax,
+          img.getColor(255, 0, 0, 255)); // Red box
+    }
+
+    // Convert back to a Flutter image
+    final pngBytes = img.encodePng(image);
+    return Uint8List.fromList(pngBytes); // Return as Uint8List
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF832637),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+        child: Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(left: 15.0, top: 100.0),
+              child: Row(
+                children: [
+                  Image(image: AssetImage('assets/PODScan.png'), height: 70),
+                  SizedBox(width: 8),
+                  Text('PODSCAN',
+                      style: TextStyle(
+                        fontFamily: 'CinzelDecorative',
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      )),
+                ],
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.all(16),
+              height: 500,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white, width: 2),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(5),
+                child: isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : processedImage != null
+                        ? Image.memory(
+                            processedImage!) // Display processed image with boxes
+                        : Image.memory(Uint8List.fromList(widget.image
+                            .readAsBytesSync())), // Display original image
+              ),
+            ),
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF628E6E),
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(200, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: isLoading ? null : _analyzeImage,
+                child: Text(
+                  isLoading ? 'Analyzing...' : 'Analyze',
+                  style: const TextStyle(fontSize: 18),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
