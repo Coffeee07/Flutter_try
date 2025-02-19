@@ -13,10 +13,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  image_picker: ^0.8.7+4
+  image_picker: ^1.1.2
   permission_handler: ^10.4.0
   tflite_flutter: ^0.11.0
-  image: ^3.0.1
+  image: ^4.5.2
 
   cupertino_icons: ^1.0.8
 
@@ -39,8 +39,9 @@ flutter:
     - assets/background.png
     - assets/back.png
     - assets/bkgd.png
-    - assets/test-cacao-yolov5s-model.tflite                # Add TFLite model
-    - assets/label.txt                  # Add label file
+    - assets/models/
+    # - assets/test-cacao-yolov5s-model.tflite                # Add TFLite model
+    # - assets/label.txt                  # Add label file
 
   fonts:
     - family: CinzelDecorative

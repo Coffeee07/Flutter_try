@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:typed_data'; // Import this for Uint8List
-import 'dart:io'; // Import this for File
+// import 'dart:io'; // Import this for File
 
 class NoCacaoScreen extends StatelessWidget {
   final Uint8List image; // Accept the image as Uint8List
@@ -9,6 +9,7 @@ class NoCacaoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('no cacao page');
     return Scaffold(
       backgroundColor:
           const Color.fromARGB(255, 3, 1, 1), // Match splash and home screen

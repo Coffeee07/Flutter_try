@@ -9,6 +9,7 @@ class CacaoDetectedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('has cacao page');
     return Scaffold(
       backgroundColor: const Color(0xFF832637), // Same as splash screen
       body: Center(
