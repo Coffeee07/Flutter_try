@@ -20,7 +20,7 @@ class Yolov5sModel {
 
       _isLoaded = true;
     } catch (e) {
-      print('Error loading labels: $e');
+      print('Error: $e');
     }
   }
 

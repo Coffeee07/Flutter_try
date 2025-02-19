@@ -39,7 +39,7 @@ flutter:
     - assets/background.png
     - assets/back.png
     - assets/bkgd.png
-    - assets/models/
+    - assets/models/yolov5s/
     # - assets/test-cacao-yolov5s-model.tflite                # Add TFLite model
     # - assets/label.txt                  # Add label file
 

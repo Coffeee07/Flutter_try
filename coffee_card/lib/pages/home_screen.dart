@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:coffee_card/models/yolov5s.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -6,14 +7,23 @@ import 'package:permission_handler/permission_handler.dart';
 import 'analyze_page.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final Yolov5sModel yoloModel;
+
+  const HomeScreen({super.key, required this.yoloModel});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  File? _selectedImage;
+  // File? _selectedImage;
+  late Yolov5sModel _yoloModel;
+
+  @override
+  void initState() {
+    super.initState();
+    _yoloModel = widget.yoloModel;
+  }
 
   Future<void> _pickImageFromGallery() async {
     final pickedFile =
@@ -49,7 +59,10 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AnalyzePage(image: image),
+        builder: (context) => AnalyzePage(
+          image: image,
+          yoloModel: _yoloModel,
+        ),
       ),
     );
   }
