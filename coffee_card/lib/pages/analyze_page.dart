@@ -49,7 +49,7 @@ class AnalyzePage extends StatelessWidget {
 
   Widget _buildLogo() {
     return Image.asset(
-      'assets/PODScan.png',
+      'assets/images/PODScan.png',
       height: 70,
     );
   }

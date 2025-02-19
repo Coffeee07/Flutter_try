@@ -104,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       children: [
         Image.asset(
-          'assets/PODScan.png',
+          'assets/images/PODScan.png',
           height: 100,
         ),
         const SizedBox(height: 10),

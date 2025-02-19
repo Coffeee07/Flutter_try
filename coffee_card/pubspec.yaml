@@ -31,14 +31,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/PODScan.png
-    - assets/black.png
-    - assets/8.png
-    - assets/white.png
-    - assets/red.png
-    - assets/background.png
-    - assets/back.png
-    - assets/bkgd.png
+    - assets/images/
     - assets/models/yolov5s/
     # - assets/test-cacao-yolov5s-model.tflite                # Add TFLite model
     # - assets/label.txt                  # Add label file
