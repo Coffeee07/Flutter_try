@@ -55,12 +55,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _navigateToAnalyzePage(File image) {
+  void _navigateToAnalyzePage(File imageFile) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => AnalyzePage(
-          image: image,
+          imageFile: imageFile,
           yoloModel: _yoloModel,
         ),
       ),

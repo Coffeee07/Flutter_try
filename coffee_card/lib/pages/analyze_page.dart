@@ -2,11 +2,25 @@ import 'package:coffee_card/models/yolov5s.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 
-class AnalyzePage extends StatelessWidget {
-  final File image;
+class AnalyzePage extends StatefulWidget {
+  final File imageFile;
   final Yolov5sModel yoloModel;
 
-  const AnalyzePage({super.key, required this.yoloModel, required this.image});
+  const AnalyzePage({super.key, required this.yoloModel, required this.imageFile});
+
+  @override
+  _AnalyzePageState createState() => _AnalyzePageState();
+
+}
+
+class _AnalyzePageState extends State<AnalyzePage> {
+  late File _currentImageFile;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentImageFile = widget.imageFile;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +36,7 @@ class AnalyzePage extends StatelessWidget {
             children: [
               _buildHeader(),
               const SizedBox(height: 10),
-              _buildImageContainer(image, screenHeight),
+              _buildImageContainer(screenHeight),
               const SizedBox(height: 20),
               _buildAnalyzeButton(),
             ],
@@ -77,7 +91,7 @@ class AnalyzePage extends StatelessWidget {
   }
 
   // Builds the container to display the image.
-  Widget _buildImageContainer(File image, double screenHeight) {
+  Widget _buildImageContainer(double screenHeight) {
     const borderColor = Colors.white;
     const borderThickness = 2.0;
     const  borderToImagePadding = 8.0; // Padding inside the border.
@@ -86,7 +100,7 @@ class AnalyzePage extends StatelessWidget {
     return Center(
       child: Container(
         margin: const EdgeInsets.all(16),
-        height: screenHeight * 0.5, // 50% of screen height
+        height: screenHeight * 0.75, // 50% of screen height
         decoration: BoxDecoration(
           border: Border.all(
             color: borderColor,
@@ -99,7 +113,7 @@ class AnalyzePage extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(borderToImagePadding),
             child: Image.file(
-              image,
+              _currentImageFile,
               fit: BoxFit.contain, // Maintains the aspect ratio while clamping the height.
             ),
           ),
@@ -133,16 +147,28 @@ class AnalyzePage extends StatelessWidget {
       ),
     );
   }
-
-  void _onAnalyzePressed() {
+  
+  Future<void> _onAnalyzePressed() async {
     // Add analysis logic here.
     // print('analyzing...');
-    if (yoloModel.isLoaded) {
+    if (widget.yoloModel.isLoaded) {
       print('Model is loaded and ready to analyze.');
+      await _runInference();
       // Add analysis logic here
     } else {
       print('Model is not yet loaded.');
     }
   }
 
+  Future<void> _runInference() async {
+    final results = await widget.yoloModel.runInference(_currentImageFile);
+    
+    List<List<double>> selectedBoxes = widget.yoloModel.processOutput(results);
+    final updatedImageFile = widget.yoloModel.drawBoundingBoxes(_currentImageFile, selectedBoxes);
+    print('original image:\n${_currentImageFile.path}');
+    setState(() {
+      _currentImageFile = updatedImageFile;
+    });
+    print('drawn image:\n${_currentImageFile.path}');
+  }
 }
