@@ -12,7 +12,8 @@ class Yolov5sModel {
 
   Yolov5sModel();
 
-  Future<void> loadModel({required String modelPath, required String labelPath}) async {
+  Future<void> loadModel(
+      {required String modelPath, required String labelPath}) async {
     try {
       // Load Model.
       _interpreter = await Interpreter.fromAsset(modelPath);
@@ -36,7 +37,7 @@ class Yolov5sModel {
     // Read and decode the image
     final imageBytes = await imageFile.readAsBytes();
     final inputImage = img.decodeImage(imageBytes)!;
-    
+
     // Resize the image to 640 x 640
     final resizedImage = img.copyResize(inputImage, width: 640, height: 640);
 
@@ -74,13 +75,20 @@ class Yolov5sModel {
         final classIndex = prediction[5] > prediction[6] ? 0 : 1;
         final classConfidence = classProb[classIndex];
 
-        if (confidence > 0.5 && classConfidence > 0.5) {
+        if (confidence > 0.7 && classConfidence > 0.7) {
           final xmin = xCenter - width / 2;
           final ymin = yCenter - height / 2;
           final xmax = xCenter + width / 2;
           final ymax = yCenter + height / 2;
 
-          allBoxes.add([xmin, ymin, xmax, ymax, confidence * classConfidence, classIndex.toDouble()]);
+          allBoxes.add([
+            xmin,
+            ymin,
+            xmax,
+            ymax,
+            confidence * classConfidence,
+            classIndex.toDouble()
+          ]);
         }
       }
     }
@@ -89,12 +97,13 @@ class Yolov5sModel {
     return selectedBoxes;
   }
 
-  List<List<double>> nonMaxSupression(List<List<double>> boxes, double iouThreshold) {
+  List<List<double>> nonMaxSupression(
+      List<List<double>> boxes, double iouThreshold) {
     boxes.sort((a, b) => b[4].compareTo(a[4]));
 
     List<List<double>> selectedBoxes = [];
 
-    while(boxes.isNotEmpty) {
+    while (boxes.isNotEmpty) {
       final bestBox = boxes.removeAt(0);
       selectedBoxes.add(bestBox);
 
@@ -104,18 +113,23 @@ class Yolov5sModel {
   }
 
   double iou(List<double> boxA, List<double> boxB) {
-    final xminA = boxA[0]; final yminA = boxA[1];
-    final xmaxA = boxA[2]; final ymaxA = boxA[3];
+    final xminA = boxA[0];
+    final yminA = boxA[1];
+    final xmaxA = boxA[2];
+    final ymaxA = boxA[3];
 
-    final xminB = boxB[0]; final yminB = boxB[1];
-    final xmaxB = boxB[2]; final ymaxB = boxB[3];
+    final xminB = boxB[0];
+    final yminB = boxB[1];
+    final xmaxB = boxB[2];
+    final ymaxB = boxB[3];
 
     final interXmin = math.min(xminA, xminB);
     final interYmin = math.min(yminA, yminB);
     final interXmax = math.max(xmaxA, xmaxB);
     final interYmax = math.max(ymaxA, ymaxB);
 
-    final interArea = math.max(0, interXmax - interXmin) * math.max(0, interYmax - interYmin);
+    final interArea =
+        math.max(0, interXmax - interXmin) * math.max(0, interYmax - interYmin);
     final areaA = (xmaxA - xminA) * (ymaxA - yminA);
     final areaB = (xmaxB - xminB) * (ymaxB - yminB);
 
@@ -136,12 +150,20 @@ class Yolov5sModel {
       print('Drawing box: ($xmin, $ymin, $xmax, $ymax)');
 
       // Draw rectangle
-      img.drawRect(decodedImage, x1: xmin, y1: ymin, x2: xmax, y2: ymax, color: img.ColorUint8.rgb(255, 0, 0), thickness: 5);
+      img.drawRect(decodedImage,
+          x1: xmin,
+          y1: ymin,
+          x2: xmax,
+          y2: ymax,
+          color: img.ColorUint8.rgb(255, 0, 0),
+          thickness: 5);
     }
 
     // Save the modified image back to the file
-    final newImageFilePath = '${imageFile.parent.path}/modified_${DateTime.now().millisecondsSinceEpoch}.jpg';
-    final newImageFile = File(newImageFilePath)..writeAsBytesSync(img.encodeJpg(decodedImage));
+    final newImageFilePath =
+        '${imageFile.parent.path}/modified_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final newImageFile = File(newImageFilePath)
+      ..writeAsBytesSync(img.encodeJpg(decodedImage));
     print('bounding box drawn and saved to:\n${newImageFile.path}');
     return newImageFile;
   }

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:coffee_card/models/yolov5s.dart';
+import 'package:PODScan/models/yolov5s.dart';
 import 'package:flutter/material.dart';
 
 import 'home_screen.dart';
@@ -29,9 +29,10 @@ class _SplashScreenState extends State<SplashScreen> {
     if (mounted) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen(
-          yoloModel: _yolov5sModel,
-        )),
+        MaterialPageRoute(
+            builder: (context) => HomeScreen(
+                  yoloModel: _yolov5sModel,
+                )),
       );
     }
   }
@@ -65,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Image.asset(
-          'assets/images/PODScan.png',
+          'assets/images/logo.png',
           height: 120,
         ),
         const SizedBox(width: 10),
@@ -109,5 +110,4 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
-
 }

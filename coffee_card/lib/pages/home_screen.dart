@@ -1,9 +1,8 @@
 import 'dart:io';
-import 'package:coffee_card/models/yolov5s.dart';
+import 'package:PODScan/models/yolov5s.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 import 'analyze_page.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -101,34 +100,32 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildLogo() {
-    return Column(
-      children: [
-        Image.asset(
-          'assets/images/PODScan.png',
-          height: 100,
-        ),
-        const SizedBox(height: 10),
-        RichText(
-          text: const TextSpan(
-            style: TextStyle(
-              fontFamily: 'CinzelDecorative',
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-            ),
-            children: [
-              TextSpan(
-                text: 'POD',
-                style: TextStyle(color: Color(0xFF7ED957)),
-              ),
-              TextSpan(
-                text: 'SCAN',
-                style: TextStyle(color: Color(0xFFFFDE59)),
-              ),
-            ],
+    return Column(children: [
+      Image.asset(
+        'assets/images/logo.png',
+        height: 100,
+      ),
+      const SizedBox(height: 10),
+      RichText(
+        text: const TextSpan(
+          style: TextStyle(
+            fontFamily: 'CinzelDecorative',
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
           ),
+          children: [
+            TextSpan(
+              text: 'POD',
+              style: TextStyle(color: Color(0xFF7ED957)),
+            ),
+            TextSpan(
+              text: 'SCAN',
+              style: TextStyle(color: Color(0xFFFFDE59)),
+            ),
+          ],
         ),
-      ]
-    );
+      ),
+    ]);
   }
 
   Widget _buildButtons() {
@@ -194,5 +191,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 }
