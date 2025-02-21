@@ -1,57 +1,27 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'main.dart';
+import 'dart:typed_data'; // Import this for Uint8List
+// import 'dart:io'; // Import this for File
 
 class NoCacaoScreen extends StatelessWidget {
-  final File image;
+  final Uint8List image; // Accept the image as Uint8List
 
   const NoCacaoScreen({Key? key, required this.image}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    print('no cacao page');
     return Scaffold(
-      backgroundColor: const Color(0xFF832637), // Match AnalyzePage background
+      backgroundColor:
+          const Color.fromARGB(255, 3, 1, 1), // Match splash and home screen
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 15.0, top: 100.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.asset(
-                    'assets/PODScan.png',
-                    height: 70,
-                  ),
-                  const SizedBox(width: 8),
-                  RichText(
-                    text: const TextSpan(
-                      style: TextStyle(
-                        fontFamily: 'CinzelDecorative',
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: 'POD',
-                          style: TextStyle(color: Color(0xFF7ED957)),
-                        ),
-                        TextSpan(
-                          text: 'SCAN',
-                          style: TextStyle(color: Color(0xFFFFDE59)),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 100),
             Container(
               margin: const EdgeInsets.all(16),
-              height: 350,
+              height: 300,
               width: double.infinity,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.white, width: 2),
@@ -59,60 +29,36 @@ class NoCacaoScreen extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(5),
-                child: Image.file(
-                  image,
-                  fit: BoxFit.cover,
-                ),
+                child:
+                    Image.memory(image, fit: BoxFit.cover), // Display the image
               ),
             ),
             const SizedBox(height: 20),
-            const Center(
-              child: Column(
-                children: [
-                  Text(
-                    'No Cacao Detected',
-                    style: TextStyle(
-                      fontFamily: 'CinzelDecorative',
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Confidence:',
-                    style: TextStyle(
-                      fontFamily: 'CinzelDecorative',
-                      fontSize: 18,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
+            const Text(
+              'No Cacao Detected',
+              style: TextStyle(
+                fontFamily: 'CinzelDecorative',
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
             ),
             const SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF628E6E),
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(200, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 5,
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF628E6E),
+                foregroundColor: Colors.white,
+                minimumSize: const Size(200, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                onPressed: () {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
-                    (route) => false,
-                  );
-                },
-                child: const Text(
-                  'Retry',
-                  style: TextStyle(fontSize: 18),
-                ),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                'Back',
+                style: TextStyle(fontSize: 18),
               ),
             ),
           ],
