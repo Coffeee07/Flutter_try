@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:PODScan/models/yolov5s.dart';
 import 'dart:io';
 import 'home_screen.dart';
+import 'results.dart';
 
 class HasCacaoScreen extends StatelessWidget {
   final File analyzedImage;
@@ -152,7 +153,22 @@ class HasCacaoScreen extends StatelessWidget {
         elevation: 5,
       ),
       onPressed: () {
-        //add action
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ResultsScreen(
+              cacaoVariety:
+                  "Cacao Variety Placeholder", // Replace with actual data
+              diseaseType:
+                  "Disease Type Placeholder", // Replace with actual data
+              pestType: "Pest Type Placeholder", // Replace with actual data
+              severityLevel:
+                  "Severity Level Placeholder", // Replace with actual data
+              analyzedImage: Image.file(
+                  analyzedImage), // Pass the image with bounding boxes
+            ),
+          ),
+        );
       },
       child: const Text(
         'Continue',

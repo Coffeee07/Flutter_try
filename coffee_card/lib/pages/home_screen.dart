@@ -66,12 +66,49 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // @override
+  // Widget build(BuildContext context) {
+  //   print('home page');
+  //   return Scaffold(
+  //     body: _buildBody(),
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
     print('home page');
-    return Scaffold(
-      body: _buildBody(),
+    return WillPopScope(
+      onWillPop: () async {
+        bool exitApp = await _showExitConfirmationDialog(context);
+        return exitApp; // If true, exit the app. If false, stay.
+      },
+      child: Scaffold(
+        body: _buildBody(),
+      ),
     );
+  }
+
+  Future<bool> _showExitConfirmationDialog(BuildContext context) async {
+    return await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text("Confirm Exit"),
+            content: Text(
+                "Closing the app will end your session. Do you want to continue?"),
+            actions: [
+              TextButton(
+                onPressed: () =>
+                    Navigator.of(context).pop(false), // Stay in app
+                child: Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true), // Exit app
+                child: Text("Yes"),
+              ),
+            ],
+          ),
+        ) ??
+        false; // Default to false if dialog is dismissed
   }
 
   Widget _buildBody() {

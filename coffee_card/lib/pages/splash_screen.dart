@@ -70,20 +70,20 @@ class _SplashScreenState extends State<SplashScreen> {
           height: 120,
         ),
         const SizedBox(width: 10),
-        _buildDivider(),
+        // _buildDivider(),
         const SizedBox(width: 10),
         _buildAppTitle(),
       ],
     );
   }
 
-  Widget _buildDivider() {
-    return Container(
-      height: 50,
-      width: 2,
-      color: Colors.white,
-    );
-  }
+  // Widget _buildDivider() {
+  //   return Container(
+  //     height: 50,
+  //     width: 2,
+  //     color: Colors.white,
+  //   );
+  // }
 
   Widget _buildAppTitle() {
     return RichText(

@@ -67,7 +67,7 @@ class _AnalyzePageState extends State<AnalyzePage> {
 
   Widget _buildLogo() {
     return Image.asset(
-      'assets/images/PODScan.png',
+      'assets/images/logo.png',
       height: 70,
     );
   }
