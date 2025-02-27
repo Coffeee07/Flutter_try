@@ -44,42 +44,29 @@ class _AnalyzePageState extends State<AnalyzePage> {
   }
 
   Future<void> _runInference() async {
-    final results = await Yolov5sModel.runInference(_currentImageFile);
-
-    List<List<double>> selectedBoxes = Yolov5sModel.processOutput(results);
-
-    double maxConfidence = 0.0; // Default confidence
-
-    for (var box in selectedBoxes) {
-      double confidence = box[4]; // Assuming confidence score is at index 4
-      if (confidence > maxConfidence) {
-        maxConfidence = confidence;
-      }
-    }
-
-    if (selectedBoxes.isEmpty) {
+    final results = await Yolov5sModel.runInference(_currentImageFile);;
+    final result = Yolov5sModel.getCacao(results[0]); // [xCenter, yCenter, width, height, overallConfidence, classId]
+    if (result == null) {
       // No cacao detected → Go to NoCacaoScreen, pass the max confidence (even if it's low)
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => NoCacaoScreen(
             analyzedImage: _currentImageFile,
-            confidence: maxConfidence, // Pass the confidence, even if it's 0
+            confidence: 1, // Pass the confidence, even if it's 0
           ),
         ),
       );
     } else {
       // Cacao detected → Draw bounding boxes
-      final updatedImageFile =
-          Yolov5sModel.drawBoundingBoxes(_currentImageFile, selectedBoxes);
-
+      final updatedImageFile = Yolov5sModel.drawBoundingBox(_currentImageFile, result);
       // Navigate to HasCacaoScreen
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => HasCacaoScreen(
             analyzedImage: updatedImageFile,
-            confidenceScore: maxConfidence,
+            result: result,
           ),
         ),
       );

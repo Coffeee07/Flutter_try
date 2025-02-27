@@ -1,17 +1,44 @@
+import 'package:PODScan/models/resnet50.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'home_screen.dart';
 import 'results.dart';
+import 'package:image/image.dart' as img;
 
 class HasCacaoScreen extends StatelessWidget {
   final File analyzedImage;
-  final double confidenceScore;
+  final List<double> result;
 
   const HasCacaoScreen({
     super.key,
     required this.analyzedImage,
-    required this.confidenceScore,
+    required this.result,
   });
+
+  File _cropImage(File imageFile, List<double> result) {
+    final imageBytes = imageFile.readAsBytesSync();
+
+    img.Image originalImage = img.decodeImage(imageBytes)!;
+
+    final xCenter = result[0];
+    final yCenter = result[1];
+    final bboxWidth = result[2];
+    final bboxHeight = result[3];
+
+    final x = ((xCenter - bboxWidth / 2) * originalImage.width).toInt();
+    final y = ((yCenter - bboxHeight / 2) * originalImage.height).toInt();
+    final w = (bboxWidth * originalImage.width).toInt();
+    final h = (bboxHeight * originalImage.height).toInt();
+
+    final croppedImage = img.copyCrop(originalImage, x: x, y: y, width: w, height: h);
+
+    // Save the modified image back to the file
+    final croppedImagePath =
+        '${imageFile.parent.path}/cropped_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final croppedImageFile = File(croppedImagePath)
+      ..writeAsBytesSync(img.encodeJpg(croppedImage));
+    return croppedImageFile;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +152,7 @@ class HasCacaoScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Confidence: ${(confidenceScore * 100).toStringAsFixed(2)}%',
+            'Confidence: ${(result[4] * 100).toStringAsFixed(2)}%',
             style: const TextStyle(
               fontFamily: 'CinzelDecorative',
               fontSize: 18,
@@ -149,13 +176,15 @@ class HasCacaoScreen extends StatelessWidget {
         ),
         elevation: 5,
       ),
-      onPressed: () {
+      onPressed: () async {
+        File croppedImageFile = _cropImage(analyzedImage, result);
+        List<double> resnetResult = (await ResNet50Model.runInference(croppedImageFile))[0] as List<double> ;
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ResultsScreen(
               cacaoVariety:
-                  "Cacao Variety Placeholder", // Replace with actual data
+                  ResNet50Model.getClassFromResult(resnetResult), // Replace with actual data
               diseaseType:
                   "Disease Type Placeholder", // Replace with actual data
               pestType: "Pest Type Placeholder", // Replace with actual data

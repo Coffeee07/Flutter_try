@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:PODScan/models/resnet50.dart';
 import 'package:PODScan/models/yolov5s.dart';
 import 'package:flutter/material.dart';
 
@@ -40,6 +41,11 @@ class _SplashScreenState extends State<SplashScreen> {
     await Yolov5sModel.loadModel(
       modelPath: 'assets/models/yolov5s/model.tflite',
       labelPath: 'assets/models/yolov5s/label.txt',
+    );
+
+    await ResNet50Model.loadModel(
+      modelPath: 'assets/models/resnet50/variety_model.tflite',
+      labelPath: 'assets/models/resnet50/variety_label.txt',
     );
   }
 

@@ -37,6 +37,7 @@ flutter:
   assets:
     - assets/images/
     - assets/models/yolov5s/
+    - assets/models/resnet50/
     # - assets/test-cacao-yolov5s-model.tflite                # Add TFLite model
     # - assets/label.txt                  # Add label file
 

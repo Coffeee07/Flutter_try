@@ -102,6 +102,53 @@ class Yolov5sModel {
     return outputTensor;
   }
 
+  static List<double>? getCacao(List<List<double>> results) {
+    if (results.isEmpty) return null;
+
+    List<double>? bestDetection;
+
+    double highestOverallConfidence = 0.0;
+
+    for (var result in results) {
+      // [xCenter, yCenter, width, height, objectConfidenceScore, classOneConfidenceScore, classTwoConfidenceScore, ...]
+      double bboxConfidence = result[4];
+      
+      double highestClassConfidence = 0.0;
+      int bestClassId = -1;
+
+      for (int classId = 0; classId < result.length - 5; classId++) {
+        double classConfidence = result[5 + classId];
+        if (classConfidence > highestClassConfidence) {
+          highestClassConfidence = classConfidence;
+          bestClassId = classId;
+        }
+      }
+
+      if (highestClassConfidence <= 0.7 || bboxConfidence <= 0.7) {
+        continue;
+      }
+
+      double overallConfidence = bboxConfidence * highestClassConfidence;
+
+      if (overallConfidence > highestOverallConfidence) {
+        highestClassConfidence = overallConfidence;
+        bestDetection = [
+          result[0], // x center
+          result[1], // y center
+          result[2], // width
+          result[3], // height
+          overallConfidence, // overall confidence
+          bestClassId.toDouble(), // class id
+        ];
+      }
+    }
+    return bestDetection;
+  }
+
+
+
+
+
   static List<List<double>> processOutput(List<dynamic> output) {
     return _instance._processOutput(output);
   }
@@ -192,25 +239,24 @@ class Yolov5sModel {
     return interArea / (areaA + areaB - interArea);
   }
 
-  static File drawBoundingBoxes(File imageFile, List<List<double>> boxes) {
+  static File drawBoundingBox(File imageFile, List<double> box) {
     final imageBytes = imageFile.readAsBytesSync();
     final decodedImage = img.decodeImage(imageBytes)!;
 
-    for (var box in boxes) {
-      final xmin = (box[0] * decodedImage.width).toInt();
-      final ymin = (box[1] * decodedImage.height).toInt();
-      final xmax = (box[2] * decodedImage.width).toInt();
-      final ymax = (box[3] * decodedImage.height).toInt();
+    final xmin = ((box[0] - box[2] / 2) * decodedImage.width).toInt();
+    final ymin = ((box[1] - box[3] / 2) * decodedImage.height).toInt();
+    final xmax = ((box[0] + box[2] / 2) * decodedImage.width).toInt();
+    final ymax = ((box[1] + box[3] / 2) * decodedImage.height).toInt();
 
       // Draw rectangle
       img.drawRect(decodedImage,
-          x1: xmin,
-          y1: ymin,
-          x2: xmax,
-          y2: ymax,
-          color: img.ColorUint8.rgb(255, 0, 0),
-          thickness: 5);
-    }
+        x1: xmin,
+        y1: ymin,
+        x2: xmax,
+        y2: ymax,
+        color: img.ColorUint8.rgb(255, 0, 0),
+        thickness: 5
+      );
 
     // Save the modified image back to the file
     final newImageFilePath =
