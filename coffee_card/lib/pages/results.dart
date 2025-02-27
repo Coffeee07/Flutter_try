@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:PODScan/models/yolov5s.dart';
+import 'home_screen.dart';
 
 class ResultsScreen extends StatefulWidget {
   final String cacaoVariety;
@@ -6,6 +8,7 @@ class ResultsScreen extends StatefulWidget {
   final String pestType;
   final String severityLevel;
   final Image analyzedImage; // Image with bounding box
+  final Yolov5sModel yoloModel;
 
   const ResultsScreen({
     super.key,
@@ -14,6 +17,7 @@ class ResultsScreen extends StatefulWidget {
     required this.pestType,
     required this.severityLevel,
     required this.analyzedImage,
+    required this.yoloModel,
   });
 
   @override
@@ -90,6 +94,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
           const SizedBox(height: 10),
           _buildResultsBox(), // for Results
           const SizedBox(height: 15),
+          _buildHomeButton(context),
+          const SizedBox(height: 15),
         ],
       ),
     );
@@ -99,8 +105,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
   Map<String, String> cacaoNSICNumbers = {
     'BR25': 'NSIC 2000 Cc05',
     'UF18': 'NSIC 1997 Cc01',
-    'K9': 'NSIC 2003 Cc08',
-    // Add more mappings as needed
+    'PBC123': 'NSIC 2014 Cc 11',
   };
 
   Widget _buildVarietyBox() {
@@ -197,20 +202,49 @@ class _ResultsScreenState extends State<ResultsScreen> {
     );
   }
 
+  Widget _buildHomeButton(BuildContext context) {
+    return Center(
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF628E6E),
+          foregroundColor: Colors.white,
+          minimumSize: const Size(200, 50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          elevation: 5,
+        ),
+        onPressed: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeScreen(yoloModel: widget.yoloModel),
+            ),
+            (route) => false, // Clears all previous screens
+          );
+        },
+        child: const Text(
+          'Home',
+          style: TextStyle(
+            fontFamily: 'CinzelDecorative',
+            fontSize: 18,
+          ),
+        ),
+      ),
+    );
+  }
+
   //cacao description
   String _getCacaoDescription(String variety) {
     switch (variety.toLowerCase()) {
-      case 'criollo':
+      case 'uf18':
         return 'Criollo is known for its complex aroma and lack of bitterness. It is the most premium cacao variety.';
-      case 'forastero':
+      case 'br25':
         return 'Forastero is the most common variety, known for its strong flavor and higher yield.';
-      case 'trinitario':
+      case 'pbc123':
         return 'Trinitario is a hybrid of Criollo and Forastero, combining fine flavor with disease resistance.';
       default:
-        return 'No specific description available for this cacao variety.'
-            'No specific description available for this cacao variety.'
-            'No specific description available for this cacao variety.'
-            'No specific description available for this cacao variety.';
+        return 'No specific description available for this cacao variety.';
     }
   }
 

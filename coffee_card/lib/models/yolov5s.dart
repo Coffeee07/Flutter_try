@@ -54,7 +54,7 @@ class Yolov5sModel {
     // Add batch dimension
     var inputTensor = input.reshape([1, 640, 640, 3]);
 
-    var output = List.filled(1 * 25200 * 7, 0).reshape([1, 25200, 7]);
+    var output = List.filled(1 * 25200 * 8, 0).reshape([1, 25200, 8]);
 
     _interpreter.run(inputTensor, output);
     return output;
@@ -72,10 +72,13 @@ class Yolov5sModel {
         final confidence = prediction[4];
         final classProb = prediction.sublist(5);
 
-        final classIndex = prediction[5] > prediction[6] ? 0 : 1;
+        // final classIndex = prediction[5] > prediction[6] ? 0 : 1;
+        final classIndex = classProb.indexOf(
+            classProb.reduce((a, b) => (a as double) > (b as double) ? a : b));
+
         final classConfidence = classProb[classIndex];
 
-        if (confidence > 0.7 && classConfidence > 0.7) {
+        if (confidence > 0.5 && classConfidence > 0.5) {
           final xmin = xCenter - width / 2;
           final ymin = yCenter - height / 2;
           final xmax = xCenter + width / 2;
@@ -145,7 +148,7 @@ class Yolov5sModel {
       final ymin = (box[1] * decodedImage.height).toInt();
       final xmax = (box[2] * decodedImage.width).toInt();
       final ymax = (box[3] * decodedImage.height).toInt();
-      final classIndex = box[5].toInt();
+      // final classIndex = box[5].toInt();
 
       print('Drawing box: ($xmin, $ymin, $xmax, $ymax)');
 

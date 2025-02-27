@@ -1,8 +1,7 @@
 import 'package:PODScan/models/yolov5s.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'nocacao.dart';
-import 'hascacao.dart';
+import 'dynamicscreen.dart';
 
 class AnalyzePage extends StatefulWidget {
   final File imageFile;
@@ -170,7 +169,7 @@ class _AnalyzePageState extends State<AnalyzePage> {
       _isAnalyzing = true; // Show "Analyzing..."
     });
 
-    print('Model is loaded and ready to analyze.');
+    debugPrint('Model is loaded and ready to analyze.');
     await _runInference();
 
     setState(() {
@@ -179,47 +178,47 @@ class _AnalyzePageState extends State<AnalyzePage> {
   }
 
   Future<void> _runInference() async {
+    print("Starting inference...");
     final results = await widget.yoloModel.runInference(_currentImageFile);
+    print("Inference completed. Processing output...");
 
     List<List<double>> selectedBoxes = widget.yoloModel.processOutput(results);
 
-    double maxConfidence = 0.0; // Default confidence
+    double maxConfidence = 0.0;
+    int detectedClass = -1; // Default class (no detection)
 
     for (var box in selectedBoxes) {
       double confidence = box[4]; // Assuming confidence score is at index 4
+      int classId = box[5].toInt(); // Assuming class ID is at index 5
+
       if (confidence > maxConfidence) {
         maxConfidence = confidence;
+        detectedClass = classId;
       }
     }
 
-    if (selectedBoxes.isEmpty) {
-      // No cacao detected → Go to NoCacaoScreen, pass the max confidence (even if it's low)
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => NoCacaoScreen(
-            analyzedImage: _currentImageFile,
-            confidence: maxConfidence, // Pass the confidence, even if it's 0
-            yoloModel: widget.yoloModel,
-          ),
-        ),
-      );
-    } else {
-      // Cacao detected → Draw bounding boxes
-      final updatedImageFile =
-          widget.yoloModel.drawBoundingBoxes(_currentImageFile, selectedBoxes);
+    // - 0 = No Cacao
+    // - 1 = Real Cacao (no plastic)
+    // - 2 = Plastic Cacao (cacao with plastic cover)
 
-      // Navigate to HasCacaoScreen
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HasCacaoScreen(
-            analyzedImage: updatedImageFile,
-            confidenceScore: maxConfidence,
-            yoloModel: widget.yoloModel,
-          ),
+    bool hasCacao = detectedClass == 1 || detectedClass == 2;
+    bool hasPlastic = detectedClass == 2; // Only true if it's plastic cacao
+
+    final updatedImageFile = hasCacao
+        ? widget.yoloModel.drawBoundingBoxes(_currentImageFile, selectedBoxes)
+        : _currentImageFile; // If no cacao, keep the original image
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DynamicCacaoScreen(
+          analyzedImage: updatedImageFile,
+          confidenceScore: maxConfidence,
+          yoloModel: widget.yoloModel,
+          hasCacao: hasCacao,
+          hasPlastic: hasPlastic,
         ),
-      );
-    }
+      ),
+    );
   }
 }

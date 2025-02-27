@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:PODScan/models/yolov5s.dart';
 import 'package:flutter/material.dart';
-
 import 'home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -42,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // await Future.delayed(const Duration(seconds: 3));
 
     await _yolov5sModel.loadModel(
-      modelPath: 'assets/models/yolov5s/model.tflite',
+      modelPath: 'assets/models/yolov5s/yolo_v2.tflite',
       labelPath: 'assets/models/yolov5s/label.txt',
     );
   }
