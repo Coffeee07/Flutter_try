@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
@@ -24,7 +23,7 @@ class Yolov5sModel {
 
       _isLoaded = true;
     } catch (e) {
-      print('Error: $e');
+      throw Exception('Failed to load the model: $e');
     }
   }
 
@@ -172,9 +171,6 @@ class Yolov5sModel {
       final ymin = (box[1] * decodedImage.height).toInt();
       final xmax = (box[2] * decodedImage.width).toInt();
       final ymax = (box[3] * decodedImage.height).toInt();
-      final classIndex = box[5].toInt();
-
-      print('Drawing box: ($xmin, $ymin, $xmax, $ymax)');
 
       // Draw rectangle
       img.drawRect(decodedImage,
@@ -191,7 +187,6 @@ class Yolov5sModel {
         '${imageFile.parent.path}/modified_${DateTime.now().millisecondsSinceEpoch}.jpg';
     final newImageFile = File(newImageFilePath)
       ..writeAsBytesSync(img.encodeJpg(decodedImage));
-    print('bounding box drawn and saved to:\n${newImageFile.path}');
     return newImageFile;
   }
 
