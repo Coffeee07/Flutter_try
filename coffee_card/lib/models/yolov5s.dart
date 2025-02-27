@@ -6,13 +6,29 @@ import 'package:image/image.dart' as img;
 import 'dart:math' as math;
 
 class Yolov5sModel {
+  // Singleton instance
+  static final Yolov5sModel _instance = Yolov5sModel._internal();
+
+  // Private constructor
+  Yolov5sModel._internal();
+
+  // Factory constructor to return the singleton instance
+  factory Yolov5sModel() {
+    return _instance;
+  }
+
   late Interpreter _interpreter;
   List<String> _labels = [];
   bool _isLoaded = false;
 
-  Yolov5sModel();
+  static Future<void> loadModel({
+    required String modelPath,
+    required String labelPath,
+  }) async {
+    await _instance._loadModel(modelPath: modelPath, labelPath: labelPath);
+  }
 
-  Future<void> loadModel(
+  Future<void> _loadModel(
       {required String modelPath, required String labelPath}) async {
     try {
       // Load Model.
@@ -29,7 +45,11 @@ class Yolov5sModel {
 
   bool get isLoaded => _isLoaded;
 
-  Future<List<dynamic>> runInference(File imageFile) async {
+  static Future<List<dynamic>> runInference(File imageFile) async {
+    return await _instance._runInference(imageFile);
+  }
+
+  Future<List<dynamic>> _runInference(File imageFile) async {
     if (!_isLoaded) {
       throw Exception('Model is not loaded yet.');
     }
@@ -39,18 +59,24 @@ class Yolov5sModel {
     final inputImage = img.decodeImage(imageBytes)!;
 
     // Get the input and output shapes
-    var outputShape = _interpreter.getOutputTensor(0).shape; // [1 = batchSize, 25200 = numPredictions, 8 = bbox(4) + confidence(1) + numClasses(3)]
-    var inputShape = _interpreter.getInputTensor(0).shape; // [1 = batchSize, 640 = height, 640 = width, 3 = channels]
+    var outputShape = _interpreter
+        .getOutputTensor(0)
+        .shape; // [1 = batchSize, 25200 = numPredictions, 8 = bbox(4) + confidence(1) + numClasses(3)]
+    var inputShape = _interpreter
+        .getInputTensor(0)
+        .shape; // [1 = batchSize, 640 = height, 640 = width, 3 = channels]
 
     final imageWidth = inputShape[2];
     final imageHeight = inputShape[1];
     final channels = inputShape[3];
 
     // Resize the image to 640 x 640
-    final resizedImage = img.copyResize(inputImage, width: imageWidth, height: imageHeight);
+    final resizedImage =
+        img.copyResize(inputImage, width: imageWidth, height: imageHeight);
 
     // Create the list of output and initialize its values to 0
-    var output = List.filled(outputShape[0] * outputShape[1] * outputShape[2], 0);
+    var output =
+        List.filled(outputShape[0] * outputShape[1] * outputShape[2], 0);
     // Create the list of input
     var input = Float32List(imageHeight * imageWidth * channels);
 
@@ -76,7 +102,11 @@ class Yolov5sModel {
     return outputTensor;
   }
 
-  List<List<double>> processOutput(List<dynamic> output) {
+  static List<List<double>> processOutput(List<dynamic> output) {
+    return _instance._processOutput(output);
+  }
+
+  List<List<double>> _processOutput(List<dynamic> output) {
     List<List<double>> allBoxes = [];
 
     for (var predictions in output) {
@@ -115,7 +145,7 @@ class Yolov5sModel {
 
   int _argmax(List<double> list) {
     int maxIndex = 0;
-    
+
     for (int i = 1; i < list.length; i++) {
       maxIndex = list[i] > list[maxIndex] ? i : maxIndex;
     }
@@ -162,7 +192,7 @@ class Yolov5sModel {
     return interArea / (areaA + areaB - interArea);
   }
 
-  File drawBoundingBoxes(File imageFile, List<List<double>> boxes) {
+  static File drawBoundingBoxes(File imageFile, List<List<double>> boxes) {
     final imageBytes = imageFile.readAsBytesSync();
     final decodedImage = img.decodeImage(imageBytes)!;
 

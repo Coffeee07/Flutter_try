@@ -6,10 +6,9 @@ import 'hascacao.dart';
 
 class AnalyzePage extends StatefulWidget {
   final File imageFile;
-  final Yolov5sModel yoloModel;
 
   const AnalyzePage(
-      {super.key, required this.yoloModel, required this.imageFile});
+      {super.key, required this.imageFile});
 
   @override
   _AnalyzePageState createState() => _AnalyzePageState();
@@ -24,6 +23,67 @@ class _AnalyzePageState extends State<AnalyzePage> {
   void initState() {
     super.initState();
     _currentImageFile = widget.imageFile;
+  }
+
+  Future<void> _onAnalyzePressed() async {
+    if (!Yolov5sModel().isLoaded) {
+      print('Model is not yet loaded.');
+      return;
+    }
+
+    setState(() {
+      _isAnalyzing = true; // Show "Analyzing..."
+    });
+
+    print('Model is loaded and ready to analyze.');
+    await _runInference();
+
+    setState(() {
+      _isAnalyzing = false; // Revert to "Analyze" after processing
+    });
+  }
+
+  Future<void> _runInference() async {
+    final results = await Yolov5sModel.runInference(_currentImageFile);
+
+    List<List<double>> selectedBoxes = Yolov5sModel.processOutput(results);
+
+    double maxConfidence = 0.0; // Default confidence
+
+    for (var box in selectedBoxes) {
+      double confidence = box[4]; // Assuming confidence score is at index 4
+      if (confidence > maxConfidence) {
+        maxConfidence = confidence;
+      }
+    }
+
+    if (selectedBoxes.isEmpty) {
+      // No cacao detected → Go to NoCacaoScreen, pass the max confidence (even if it's low)
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => NoCacaoScreen(
+            analyzedImage: _currentImageFile,
+            confidence: maxConfidence, // Pass the confidence, even if it's 0
+          ),
+        ),
+      );
+    } else {
+      // Cacao detected → Draw bounding boxes
+      final updatedImageFile =
+          Yolov5sModel.drawBoundingBoxes(_currentImageFile, selectedBoxes);
+
+      // Navigate to HasCacaoScreen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HasCacaoScreen(
+            analyzedImage: updatedImageFile,
+            confidenceScore: maxConfidence,
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -160,66 +220,4 @@ class _AnalyzePageState extends State<AnalyzePage> {
     );
   }
 
-  Future<void> _onAnalyzePressed() async {
-    if (!widget.yoloModel.isLoaded) {
-      print('Model is not yet loaded.');
-      return;
-    }
-
-    setState(() {
-      _isAnalyzing = true; // Show "Analyzing..."
-    });
-
-    print('Model is loaded and ready to analyze.');
-    await _runInference();
-
-    setState(() {
-      _isAnalyzing = false; // Revert to "Analyze" after processing
-    });
-  }
-
-  Future<void> _runInference() async {
-    final results = await widget.yoloModel.runInference(_currentImageFile);
-
-    List<List<double>> selectedBoxes = widget.yoloModel.processOutput(results);
-
-    double maxConfidence = 0.0; // Default confidence
-
-    for (var box in selectedBoxes) {
-      double confidence = box[4]; // Assuming confidence score is at index 4
-      if (confidence > maxConfidence) {
-        maxConfidence = confidence;
-      }
-    }
-
-    if (selectedBoxes.isEmpty) {
-      // No cacao detected → Go to NoCacaoScreen, pass the max confidence (even if it's low)
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => NoCacaoScreen(
-            analyzedImage: _currentImageFile,
-            confidence: maxConfidence, // Pass the confidence, even if it's 0
-            yoloModel: widget.yoloModel,
-          ),
-        ),
-      );
-    } else {
-      // Cacao detected → Draw bounding boxes
-      final updatedImageFile =
-          widget.yoloModel.drawBoundingBoxes(_currentImageFile, selectedBoxes);
-
-      // Navigate to HasCacaoScreen
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HasCacaoScreen(
-            analyzedImage: updatedImageFile,
-            confidenceScore: maxConfidence,
-            yoloModel: widget.yoloModel,
-          ),
-        ),
-      );
-    }
-  }
 }

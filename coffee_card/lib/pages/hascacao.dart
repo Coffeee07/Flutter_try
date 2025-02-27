@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:PODScan/models/yolov5s.dart';
 import 'dart:io';
 import 'home_screen.dart';
 import 'results.dart';
@@ -7,13 +6,11 @@ import 'results.dart';
 class HasCacaoScreen extends StatelessWidget {
   final File analyzedImage;
   final double confidenceScore;
-  final Yolov5sModel yoloModel;
 
   const HasCacaoScreen({
     super.key,
     required this.analyzedImage,
     required this.confidenceScore,
-    required this.yoloModel,
   });
 
   @override
@@ -195,7 +192,7 @@ class HasCacaoScreen extends StatelessWidget {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeScreen(yoloModel: yoloModel),
+            builder: (context) => HomeScreen(),
           ),
           (route) => false, // Clears all previous routes
         );

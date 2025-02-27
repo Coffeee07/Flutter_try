@@ -12,8 +12,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final Yolov5sModel _yolov5sModel = Yolov5sModel(); // Create model instance.
-
   @override
   void initState() {
     super.initState();
@@ -30,9 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => HomeScreen(
-                  yoloModel: _yolov5sModel,
-                )),
+            builder: (context) => HomeScreen()),
       );
     }
   }
@@ -41,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Simulate asset loading.
     // await Future.delayed(const Duration(seconds: 3));
 
-    await _yolov5sModel.loadModel(
+    await Yolov5sModel.loadModel(
       modelPath: 'assets/models/yolov5s/model.tflite',
       labelPath: 'assets/models/yolov5s/label.txt',
     );
