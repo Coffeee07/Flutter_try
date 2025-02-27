@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
@@ -38,26 +39,42 @@ class Yolov5sModel {
     final imageBytes = await imageFile.readAsBytes();
     final inputImage = img.decodeImage(imageBytes)!;
 
-    // Resize the image to 640 x 640
-    final resizedImage = img.copyResize(inputImage, width: 640, height: 640);
+    // Get the input and output shapes
+    var outputShape = _interpreter.getOutputTensor(0).shape; // [1 = batchSize, 25200 = numPredictions, 8 = bbox(4) + confidence(1) + numClasses(3)]
+    var inputShape = _interpreter.getInputTensor(0).shape; // [1 = batchSize, 640 = height, 640 = width, 3 = channels]
 
-    var input = Float32List(640 * 640 * 3);
-    for (int y = 0; y < resizedImage.height; y++) {
-      for (int x = 0; x < resizedImage.width; x++) {
+    final imageWidth = inputShape[2];
+    final imageHeight = inputShape[1];
+    final channels = inputShape[3];
+
+    // Resize the image to 640 x 640
+    final resizedImage = img.copyResize(inputImage, width: imageWidth, height: imageHeight);
+
+    // Create the list of output and initialize its values to 0
+    var output = List.filled(outputShape[0] * outputShape[1] * outputShape[2], 0);
+    // Create the list of input
+    var input = Float32List(imageHeight * imageWidth * channels);
+
+    // Populate the input list
+    for (int y = 0; y < imageHeight; y++) {
+      for (int x = 0; x < imageWidth; x++) {
         var pixel = resizedImage.getPixel(x, y);
-        input[y * 640 * 3 + x * 3 + 0] = pixel.r / 255.0; // Red
-        input[y * 640 * 3 + x * 3 + 1] = pixel.g / 255.0; // Green
-        input[y * 640 * 3 + x * 3 + 2] = pixel.b / 255.0; // Blue
+        var index = (y * imageWidth + x) * channels;
+        input[index] = pixel.r / 255.0; // Red
+        input[index + 1] = pixel.g / 255.0; // Green
+        input[index + 2] = pixel.b / 255.0; // Blue
       }
     }
 
-    // Add batch dimension
-    var inputTensor = input.reshape([1, 640, 640, 3]);
+    // Convert the lists to the shapes of the input and output
+    var inputTensor = input.reshape(inputShape);
+    var outputTensor = output.reshape(outputShape);
 
-    var output = List.filled(1 * 25200 * 7, 0).reshape([1, 25200, 7]);
+    // Run the model
+    _interpreter.run(inputTensor, outputTensor);
 
-    _interpreter.run(inputTensor, output);
-    return output;
+    // Return the output
+    return outputTensor;
   }
 
   List<List<double>> processOutput(List<dynamic> output) {
@@ -72,7 +89,7 @@ class Yolov5sModel {
         final confidence = prediction[4];
         final classProb = prediction.sublist(5);
 
-        final classIndex = prediction[5] > prediction[6] ? 0 : 1;
+        final classIndex = _argmax(classProb);
         final classConfidence = classProb[classIndex];
 
         if (confidence > 0.7 && classConfidence > 0.7) {
@@ -93,11 +110,21 @@ class Yolov5sModel {
       }
     }
 
-    final selectedBoxes = nonMaxSupression(allBoxes, 0.5);
+    final selectedBoxes = _nonMaxSupression(allBoxes, 0.5);
     return selectedBoxes;
   }
 
-  List<List<double>> nonMaxSupression(
+  int _argmax(List<double> list) {
+    int maxIndex = 0;
+    
+    for (int i = 1; i < list.length; i++) {
+      maxIndex = list[i] > list[maxIndex] ? i : maxIndex;
+    }
+
+    return maxIndex;
+  }
+
+  List<List<double>> _nonMaxSupression(
       List<List<double>> boxes, double iouThreshold) {
     boxes.sort((a, b) => b[4].compareTo(a[4]));
 
@@ -107,12 +134,12 @@ class Yolov5sModel {
       final bestBox = boxes.removeAt(0);
       selectedBoxes.add(bestBox);
 
-      boxes.removeWhere((box) => iou(box, bestBox) > iouThreshold);
+      boxes.removeWhere((box) => _iou(box, bestBox) > iouThreshold);
     }
     return selectedBoxes;
   }
 
-  double iou(List<double> boxA, List<double> boxB) {
+  double _iou(List<double> boxA, List<double> boxB) {
     final xminA = boxA[0];
     final yminA = boxA[1];
     final xmaxA = boxA[2];
