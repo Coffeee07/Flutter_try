@@ -1,3 +1,4 @@
+import 'package:PODScan/models/resnetVariety.dart';
 import 'package:flutter/material.dart';
 import 'package:PODScan/models/yolov5s.dart';
 import 'package:PODScan/models/resnetDisease.dart';
@@ -12,6 +13,7 @@ class ResultsScreen extends StatefulWidget {
 
   final Yolov5sModel yoloModel;
   final ResNetDiseaseModel resnetDiseaseModel;
+  final ResNetVarietyModel resnetVarietyModel;
 
   const ResultsScreen({
     super.key,
@@ -22,6 +24,7 @@ class ResultsScreen extends StatefulWidget {
     required this.analyzedImage,
     required this.yoloModel,
     required this.resnetDiseaseModel,
+    required this.resnetVarietyModel,
   });
 
   @override
@@ -225,6 +228,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
               builder: (context) => HomeScreen(
                 yoloModel: widget.yoloModel,
                 resnetDiseaseModel: widget.resnetDiseaseModel,
+                resnetVarietyModel: widget.resnetVarietyModel,
               ),
             ),
             (route) => false, // Clears all previous screens

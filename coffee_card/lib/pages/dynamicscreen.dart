@@ -1,3 +1,4 @@
+import 'package:PODScan/models/resnetVariety.dart';
 import 'package:flutter/material.dart';
 import 'package:PODScan/models/yolov5s.dart';
 import 'package:PODScan/models/resnetDisease.dart';
@@ -11,8 +12,10 @@ class DynamicCacaoScreen extends StatelessWidget {
   final bool hasCacao;
   final bool hasPlastic;
   final String diseaseType;
+  final String cacaoVariety;
   final Yolov5sModel yoloModel;
   final ResNetDiseaseModel resnetDiseaseModel;
+  final ResNetVarietyModel resnetVarietyModel;
 
   const DynamicCacaoScreen({
     super.key,
@@ -21,8 +24,10 @@ class DynamicCacaoScreen extends StatelessWidget {
     required this.hasCacao,
     required this.hasPlastic,
     required this.diseaseType,
+    required this.cacaoVariety,
     required this.yoloModel,
     required this.resnetDiseaseModel,
+    required this.resnetVarietyModel,
   });
 
   @override
@@ -184,7 +189,7 @@ class DynamicCacaoScreen extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => HomeScreen(
-                yoloModel: yoloModel, resnetDiseaseModel: resnetDiseaseModel),
+                yoloModel: yoloModel, resnetDiseaseModel: resnetDiseaseModel, resnetVarietyModel: resnetVarietyModel,),
           ),
           (route) => false,
         );
@@ -215,13 +220,14 @@ class DynamicCacaoScreen extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => ResultsScreen(
-              cacaoVariety: "Cacao Variety Placeholder",
+              cacaoVariety: cacaoVariety,
               diseaseType: diseaseType,
               pestType: "Pest Type Placeholder",
               severityLevel: "Severity Level Placeholder",
               analyzedImage: Image.file(analyzedImage),
               yoloModel: yoloModel,
               resnetDiseaseModel: resnetDiseaseModel,
+              resnetVarietyModel: resnetVarietyModel,
             ),
           ),
         );

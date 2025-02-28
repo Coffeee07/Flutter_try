@@ -1,3 +1,4 @@
+import 'package:PODScan/models/resnetVariety.dart';
 import 'package:PODScan/models/yolov5s.dart';
 import 'package:PODScan/models/resnetDisease.dart';
 import 'package:flutter/material.dart';
@@ -8,12 +9,15 @@ class AnalyzePage extends StatefulWidget {
   final File imageFile;
   final Yolov5sModel yoloModel;
   final ResNetDiseaseModel resnetDiseaseModel;
+  final ResNetVarietyModel resnetVarietyModel;
 
   const AnalyzePage(
       {super.key,
       required this.yoloModel,
       required this.imageFile,
-      required this.resnetDiseaseModel});
+      required this.resnetDiseaseModel,
+      required this.resnetVarietyModel,
+    });
 
   @override
   _AnalyzePageState createState() => _AnalyzePageState();
@@ -215,6 +219,7 @@ class _AnalyzePageState extends State<AnalyzePage> {
 
     //for resnet disease
     String diseaseType = "Unknown";
+     String cacaoVariety = "Unknown";
     // if (hasCacao) {
     //   print("Running ResNet for disease classification...");
     //   final diseaseType =
@@ -228,7 +233,17 @@ class _AnalyzePageState extends State<AnalyzePage> {
       print("ResNet result: $diseaseResult");
 
       diseaseType = diseaseResult['class'];
+
+      print("Running ResNet for variety classification...");
+      final varietyResult = await widget.resnetVarietyModel
+          .runInference(updatedImageFile, selectedBoxes[0]);
+      print("ResNet result: $varietyResult");
+      
+      cacaoVariety = varietyResult['class'];
     }
+
+    
+   
 
     Navigator.push(
       context,
@@ -239,8 +254,10 @@ class _AnalyzePageState extends State<AnalyzePage> {
           hasCacao: hasCacao,
           hasPlastic: hasPlastic,
           diseaseType: diseaseType,
+          cacaoVariety: cacaoVariety,
           yoloModel: widget.yoloModel,
           resnetDiseaseModel: widget.resnetDiseaseModel,
+          resnetVarietyModel: widget.resnetVarietyModel,
         ),
       ),
     );

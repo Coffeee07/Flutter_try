@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:PODScan/models/resnetVariety.dart';
 import 'package:PODScan/models/yolov5s.dart';
 import 'package:PODScan/models/resnetDisease.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   final Yolov5sModel _yolov5sModel = Yolov5sModel();
   final ResNetDiseaseModel _resnetDiseaseModel = ResNetDiseaseModel();
+  final ResNetVarietyModel _resnetVarietyModel = ResNetVarietyModel();
 
   @override
   void initState() {
@@ -34,6 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
             builder: (context) => HomeScreen(
                   yoloModel: _yolov5sModel,
                   resnetDiseaseModel: _resnetDiseaseModel,
+                  resnetVarietyModel: _resnetVarietyModel,
                 )),
       );
     }
@@ -48,6 +51,10 @@ class _SplashScreenState extends State<SplashScreen> {
       _resnetDiseaseModel.loadModel(
         modelPath: 'assets/models/resnetDisease/disease(latest).tflite',
         labelPath: 'assets/models/resnetDisease/label.txt',
+      ),
+      _resnetVarietyModel.loadModel(
+        modelPath: 'assets/models/resnetVariety/variety.tflite',
+        labelPath: 'assets/models/resnetVariety/label.txt',
       ),
     ]);
   }
