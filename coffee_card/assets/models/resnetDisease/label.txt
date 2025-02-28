@@ -1,5 +1,5 @@
-mb
-bpr
-cpb
-fpr
-healthy
+BPR
+CPB
+FPR
+HEALTHY
+MB
