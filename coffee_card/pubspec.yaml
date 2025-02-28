@@ -38,6 +38,7 @@ flutter:
     - assets/images/
     - assets/models/yolov5s/
     - assets/models/resnetDisease/
+    - assets/models/resnetVariety/
 
   fonts:
     - family: CinzelDecorative
