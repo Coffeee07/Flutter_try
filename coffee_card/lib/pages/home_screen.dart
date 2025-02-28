@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:PODScan/models/resnetDisease.dart';
 import 'package:PODScan/models/yolov5s.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,8 +8,11 @@ import 'analyze_page.dart';
 
 class HomeScreen extends StatefulWidget {
   final Yolov5sModel yoloModel;
+  final ResNetDiseaseModel resnetDiseaseModel;
 
-  const HomeScreen({super.key, required this.yoloModel});
+  const HomeScreen(
+      {Key? key, required this.yoloModel, required this.resnetDiseaseModel})
+      : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -17,11 +21,13 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   // File? _selectedImage;
   late Yolov5sModel _yoloModel;
+  late ResNetDiseaseModel _resnetDiseaseModel;
 
   @override
   void initState() {
     super.initState();
     _yoloModel = widget.yoloModel;
+    _resnetDiseaseModel = widget.resnetDiseaseModel;
   }
 
   Future<void> _pickImageFromGallery() async {
@@ -61,6 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context) => AnalyzePage(
           imageFile: imageFile,
           yoloModel: _yoloModel,
+          resnetDiseaseModel: _resnetDiseaseModel,
         ),
       ),
     );

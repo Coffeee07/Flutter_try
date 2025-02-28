@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:PODScan/models/yolov5s.dart';
+import 'package:PODScan/models/resnetDisease.dart';
 import 'home_screen.dart';
 
 class ResultsScreen extends StatefulWidget {
@@ -8,7 +9,9 @@ class ResultsScreen extends StatefulWidget {
   final String pestType;
   final String severityLevel;
   final Image analyzedImage; // Image with bounding box
+
   final Yolov5sModel yoloModel;
+  final ResNetDiseaseModel resnetDiseaseModel;
 
   const ResultsScreen({
     super.key,
@@ -18,6 +21,7 @@ class ResultsScreen extends StatefulWidget {
     required this.severityLevel,
     required this.analyzedImage,
     required this.yoloModel,
+    required this.resnetDiseaseModel,
   });
 
   @override
@@ -218,7 +222,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-              builder: (context) => HomeScreen(yoloModel: widget.yoloModel),
+              builder: (context) => HomeScreen(
+                yoloModel: widget.yoloModel,
+                resnetDiseaseModel: widget.resnetDiseaseModel,
+              ),
             ),
             (route) => false, // Clears all previous screens
           );
@@ -238,15 +245,21 @@ class _ResultsScreenState extends State<ResultsScreen> {
   String _getCacaoDescription(String variety) {
     switch (variety.toLowerCase()) {
       case 'uf18':
-        return 'Criollo is known for its complex aroma and lack of bitterness. It is the most premium cacao variety.';
+        return 'UF18 (Upper Amazon Forastero 18) is characterized by its maroon-colored pods and early fruiting, typically within 1-2 years.'
+            'It belongs to the Trinitario group, renowned for its high productivity and resistance to diseases.';
       case 'br25':
-        return 'Forastero is the most common variety, known for its strong flavor and higher yield.';
+        return 'BR25 (Bahia Reale) is cacao variety with reddish pods that turn yellow when mature,'
+            'elliptical leaves with wavy margins. It begins flowering at around 16 months and fruits by 17.7 months.';
       case 'pbc123':
-        return 'Trinitario is a hybrid of Criollo and Forastero, combining fine flavor with disease resistance.';
+        return 'PBC123 (Pound B-Clone 123) is a cacao variety recognized for its high yield and disease resistance.'
+            'Its pods are red when young and transition to orange-red upon maturity, with medium to large size.'
+            'The trees are vigorous and well-suited to diverse growing conditions.';
       default:
         return 'No specific description available for this cacao variety.';
     }
   }
+
+  //put under this comment the pest and disease description
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(

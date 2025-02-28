@@ -1,4 +1,5 @@
 import 'package:PODScan/models/yolov5s.dart';
+import 'package:PODScan/models/resnetDisease.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dynamicscreen.dart';
@@ -6,9 +7,13 @@ import 'dynamicscreen.dart';
 class AnalyzePage extends StatefulWidget {
   final File imageFile;
   final Yolov5sModel yoloModel;
+  final ResNetDiseaseModel resnetDiseaseModel;
 
   const AnalyzePage(
-      {super.key, required this.yoloModel, required this.imageFile});
+      {super.key,
+      required this.yoloModel,
+      required this.imageFile,
+      required this.resnetDiseaseModel});
 
   @override
   _AnalyzePageState createState() => _AnalyzePageState();
@@ -161,7 +166,7 @@ class _AnalyzePageState extends State<AnalyzePage> {
 
   Future<void> _onAnalyzePressed() async {
     if (!widget.yoloModel.isLoaded) {
-      print('Model is not yet loaded.');
+      print('Yolo model is not yet loaded.');
       return;
     }
 
@@ -169,7 +174,7 @@ class _AnalyzePageState extends State<AnalyzePage> {
       _isAnalyzing = true; // Show "Analyzing..."
     });
 
-    debugPrint('Model is loaded and ready to analyze.');
+    debugPrint('Yolo model is loaded and ready to analyze.');
     await _runInference();
 
     setState(() {
@@ -178,9 +183,9 @@ class _AnalyzePageState extends State<AnalyzePage> {
   }
 
   Future<void> _runInference() async {
-    print("Starting inference...");
+    print("Starting yolo inference...");
     final results = await widget.yoloModel.runInference(_currentImageFile);
-    print("Inference completed. Processing output...");
+    print("YOLO inference completed. Processing output...");
 
     List<List<double>> selectedBoxes = widget.yoloModel.processOutput(results);
 
@@ -208,15 +213,34 @@ class _AnalyzePageState extends State<AnalyzePage> {
         ? widget.yoloModel.drawBoundingBoxes(_currentImageFile, selectedBoxes)
         : _currentImageFile; // If no cacao, keep the original image
 
+    //for resnet disease
+    String diseaseType = "Unknown";
+    // if (hasCacao) {
+    //   print("Running ResNet for disease classification...");
+    //   final diseaseType =
+    //       await widget.resnetDiseaseModel.runInference(updatedImageFile);
+    //   print("ResNet result: $diseaseType");
+    // }
+    if (hasCacao && selectedBoxes.isNotEmpty) {
+      print("Running ResNet for disease classification...");
+      final diseaseResult = await widget.resnetDiseaseModel
+          .runInference(updatedImageFile, selectedBoxes[0]);
+      print("ResNet result: $diseaseResult");
+
+      diseaseType = diseaseResult['class'];
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => DynamicCacaoScreen(
           analyzedImage: updatedImageFile,
           confidenceScore: maxConfidence,
-          yoloModel: widget.yoloModel,
           hasCacao: hasCacao,
           hasPlastic: hasPlastic,
+          diseaseType: diseaseType,
+          yoloModel: widget.yoloModel,
+          resnetDiseaseModel: widget.resnetDiseaseModel,
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:PODScan/models/yolov5s.dart';
+import 'package:PODScan/models/resnetDisease.dart';
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 
@@ -11,7 +12,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final Yolov5sModel _yolov5sModel = Yolov5sModel(); // Create model instance.
+  final Yolov5sModel _yolov5sModel = Yolov5sModel();
+  final ResNetDiseaseModel _resnetDiseaseModel = ResNetDiseaseModel();
 
   @override
   void initState() {
@@ -31,19 +33,23 @@ class _SplashScreenState extends State<SplashScreen> {
         MaterialPageRoute(
             builder: (context) => HomeScreen(
                   yoloModel: _yolov5sModel,
+                  resnetDiseaseModel: _resnetDiseaseModel,
                 )),
       );
     }
   }
 
   Future<void> _loadAssets() async {
-    // Simulate asset loading.
-    // await Future.delayed(const Duration(seconds: 3));
-
-    await _yolov5sModel.loadModel(
-      modelPath: 'assets/models/yolov5s/yolo_v2.tflite',
-      labelPath: 'assets/models/yolov5s/label.txt',
-    );
+    await Future.wait([
+      _yolov5sModel.loadModel(
+        modelPath: 'assets/models/yolov5s/yolo_v2.tflite',
+        labelPath: 'assets/models/yolov5s/label.txt',
+      ),
+      _resnetDiseaseModel.loadModel(
+        modelPath: 'assets/models/resnetDisease/disease(latest).tflite',
+        labelPath: 'assets/models/resnetDisease/label.txt',
+      ),
+    ]);
   }
 
   Future<void> _initializeAppSettings() async {
